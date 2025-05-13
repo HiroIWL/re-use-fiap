@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Image } from "react-native";
+import React from "react";
 
 export default function IndexPage() {
     const router = useRouter();

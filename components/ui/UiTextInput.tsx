@@ -1,13 +1,17 @@
 import { StyleSheet, Text, TextInput, View } from "react-native"
+import React from "react"
 
 type UiTextInputProps = {
     placeholder: string;
     label: string;
     value?: string;
     onChangeText?: (text: string) => void;
+    secureTextEntry?: boolean;
+    keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+    autoCapitalize?: "none" | "sentences" | "words" | "characters";
 }
 
-export const UiTextInput = ({ placeholder, label, value, onChangeText }: UiTextInputProps) => {
+export const UiTextInput = ({ placeholder, label, value, onChangeText, secureTextEntry, keyboardType, autoCapitalize }: UiTextInputProps) => {
 
     return (
         <View style={{ width: "100%", gap: 8 }}>
@@ -17,7 +21,10 @@ export const UiTextInput = ({ placeholder, label, value, onChangeText }: UiTextI
                 placeholder={placeholder}
                 placeholderTextColor={"#A0A0A0"}
                 value={value}
-                onChangeText={onChangeText}                
+                onChangeText={onChangeText}        
+                secureTextEntry={secureTextEntry}
+                keyboardType={keyboardType}
+                autoCapitalize={autoCapitalize}        
             ></TextInput>
         </View>
     )

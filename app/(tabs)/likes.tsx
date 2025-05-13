@@ -6,15 +6,15 @@ import {
     TouchableOpacity,
     Image,
     StyleSheet,
-    Dimensions
+    Dimensions,
+    ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedView } from '@/components/ThemedView';
 import { Button } from '@/components/ui/Button';
 import { Header } from '@/components/ui/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { ScrollView } from 'react-native';
+import { useProducts } from '@/hooks/useProducts';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -27,19 +27,11 @@ const mockProductImages = [
 
 export default function LikesScreen() {
     const [tab, setTab] = useState<'propostas' | 'produtos'>('propostas');
-    const [products, setProducts] = useState<any[]>([]);
+    const { products, refreshProducts } = useProducts();
     const router = useRouter();
 
-    const loadProducts = async () => {
-        const stored = await AsyncStorage.getItem('products');
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            setProducts(parsed);
-        }
-    };
-
     useEffect(() => {
-        loadProducts();
+        refreshProducts();
     }, []);
 
     return (
@@ -77,21 +69,23 @@ export default function LikesScreen() {
                 </View>
 
                 {tab === 'propostas' && (
-                    <ScrollView style={{ gap: 16, marginTop: 12 }}>
+                    <ScrollView style={{ marginTop: 12 }}>
                         <Button text="Novo produto" type="primary" onPress={() => router.push('/productDetails')} />
-                        {products.map((item, index) => (
-                            <View key={index} style={styles.proposalCard}>
-                                <Image
-                                    source={{ uri: item.photos?.[0] }}
-                                    resizeMode="cover"
-                                    style={styles.proposalImage}
-                                />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.proposalTitle}>{item.title}</Text>
-                                    <Text style={styles.proposalSubtitle}>{item.description}</Text>
+                        <View style={{ gap: 16, marginTop: 16 }}>
+                            {products.map((item, index) => (
+                                <View key={index} style={styles.proposalCard}>
+                                    <Image
+                                        source={{ uri: item.photos?.[0] }}
+                                        resizeMode="cover"
+                                        style={styles.proposalImage}
+                                    />
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.proposalTitle}>{item.title}</Text>
+                                        <Text style={styles.proposalSubtitle}>{item.description}</Text>
+                                    </View>
                                 </View>
-                            </View>
-                        ))}
+                            ))}
+                        </View>
                     </ScrollView>
                 )}
 

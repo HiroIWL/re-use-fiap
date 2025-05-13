@@ -1,0 +1,36 @@
+{
+  "users": [
+    {
+      "id": "5923",
+      "name": "Joao",
+      "email": "joao@gmail.com",
+      "password": "teste123"
+    }
+  ],
+  "products": [
+    {
+      "id": 1747093034904,
+      "title": "",
+      "category": "",
+      "condition": "",
+      "description": "",
+      "photos": []
+    },
+    {
+      "id": 1747093088155,
+      "title": "",
+      "category": "",
+      "condition": "",
+      "description": "",
+      "photos": []
+    },
+    {
+      "id": 1747093496043,
+      "title": "",
+      "category": "",
+      "condition": "",
+      "description": "",
+      "photos": []
+    }
+  ]
+}

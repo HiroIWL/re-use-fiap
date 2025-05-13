@@ -5,8 +5,11 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import React from 'react';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { AuthProvider } from '@/hooks/useAuth';
+import { ProductProvider } from '@/hooks/useProducts';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -27,20 +30,24 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="home/index" options={{ headerShown: false }} />
-        <Stack.Screen name="login/index" options={{ headerShown: false }} />
-        <Stack.Screen name="terms/index" options={{ headerShown: false }} />
-        <Stack.Screen name="location/index" options={{ headerShown: false }} />
-        <Stack.Screen name="productPhotos/index" options={{ headerShown: false }} />
-        <Stack.Screen name="productDetails/index" options={{ headerShown: false }} />
-        <Stack.Screen name="categories/index" options={{ headerShown: false }} />
-        <Stack.Screen name="register/index" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
+      <AuthProvider>
+        <ProductProvider>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="home/index" options={{ headerShown: false }} />
+            <Stack.Screen name="login/index" options={{ headerShown: false }} />
+            <Stack.Screen name="terms/index" options={{ headerShown: false }} />
+            <Stack.Screen name="location/index" options={{ headerShown: false }} />
+            <Stack.Screen name="productPhotos/index" options={{ headerShown: false }} />
+            <Stack.Screen name="productDetails/index" options={{ headerShown: false }} />
+            <Stack.Screen name="categories/index" options={{ headerShown: false }} />
+            <Stack.Screen name="register/index" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ProductProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

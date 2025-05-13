@@ -1,51 +1,110 @@
-# Welcome to your Expo app 👋
+# ReUse FIAP
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo mobile (Expo Web) para troca de produtos, desenvolvido com foco em reuso e sustentabilidade.
 
-## Get started
+---
 
-1. Install dependencies
+## 🚀 Tecnologias utilizadas
 
-   ```bash
-   npm install
-   ```
+- [Expo](https://expo.dev/)
+- React Native (com Web support)
+- Expo Router
+- JSON Server (mock API REST local)
+- AsyncStorage
+- Context API + Hooks
 
-2. Start the app
+---
 
-   ```bash
-    npx expo start
-   ```
+## 🛠️ Como rodar o projeto
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Instalar dependências
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Iniciar a API mockada
 
-## Learn more
+```bash
+npm run db
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+> Esse comando roda o JSON Server local com o arquivo `db.json`:
+>
+> `json-server --watch db.json --port 3001`
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+A API estará acessível via `http://localhost:3001`.
 
-## Join the community
+### 3. Iniciar o app no navegador
 
-Join our community of developers creating universal apps.
+```bash
+npm run web
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-# re-use-fiap
+> ⚠️ Atualmente o app funciona apenas com **`expo run:web` ou `npm run web`**, pois as requisições estão configuradas para usar `localhost`.
+> Para rodar no celular, você deverá alterar o IP da API manualmente.
+
+---
+
+## 🔐 Autenticação com Hook
+
+Criamos o hook `useAuth` com:
+
+- `register(nome, email, senha)` → cria um novo usuário (`POST /users`)
+- `login(email, senha)` → autentica usuário (`GET /users`)
+- `logout()` → remove dados do usuário localmente
+- `AsyncStorage` para manter o login persistente
+
+---
+
+## 📦 Gerenciamento de Produtos
+
+Criamos também o hook `useProducts`, responsável por:
+
+- Listar produtos cadastrados (`GET /products`)
+- Adicionar novos produtos (`POST /products`)
+- Persistir imagens como base64
+- Atualizar o estado global automaticamente
+
+---
+
+## 🧩 Funcionalidades principais
+
+- Cadastro e login de usuários
+- Criação de produto com até 6 fotos
+- Modal de envio de proposta
+- Swipe cards estilo Tinder
+- Telas de "Minhas propostas" e "Meus produtos"
+- Mock visual com imagens reais da internet (para produtos de exemplo)
+
+---
+
+## 📁 Estrutura de dados (db.json)
+
+```json
+{
+  "users": [],
+  "products": []
+}
+```
+
+Você pode popular esse arquivo manualmente ou via tela de cadastro do app.
+
+---
+
+## ✅ Próximos passos sugeridos
+
+- Criar sistema de envio e recebimento de propostas
+- Adicionar suporte para deletar e editar produtos
+- Conectar com backend real (Ex: Firebase, FastAPI, Node/Express)
+
+---
+
+## 🤝 Créditos
+
+Projeto feito para fins educacionais na FIAP.
+Sinta-se livre para clonar, modificar e evoluir.
+
+- [Expo Docs](https://docs.expo.dev/)
+- [JSON Server](https://github.com/typicode/json-server)
+- [React Native](https://reactnative.dev/)

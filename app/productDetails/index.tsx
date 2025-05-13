@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemedView } from "@/components/ThemedView";
 import { Button } from "@/components/ui/Button";
 import { UiTextInput } from "@/components/ui/UiTextInput";
 import { useRouter } from "expo-router";
+import React from "react";
+import * as FileSystem from "expo-file-system";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function ProductDetailsScreen() {
     const [photos, setPhotos] = useState<string[]>([]);
@@ -14,6 +16,7 @@ export default function ProductDetailsScreen() {
     const [condition, setCondition] = useState("");
     const [description, setDescription] = useState("");
     const router = useRouter();
+    const { addProduct } = useProducts();
 
     const handleAddPhoto = async () => {
         Alert.alert(
@@ -27,10 +30,13 @@ export default function ProductDetailsScreen() {
                             allowsMultipleSelection: false,
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             quality: 1,
+                            base64: true,
                         });
 
                         if (!result.canceled && result.assets) {
-                            const uri = result.assets[0].uri;
+                            const asset = result.assets[0];
+                            const base64 = await FileSystem.readAsStringAsync(asset.uri, { encoding: 'base64' });
+                            const uri = `data:image/jpeg;base64,${base64}`;
                             if (photos.length < 6) {
                                 setPhotos(prev => [...prev, uri]);
                             }
@@ -49,10 +55,13 @@ export default function ProductDetailsScreen() {
                         const result = await ImagePicker.launchCameraAsync({
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             quality: 1,
+                            base64: true,
                         });
 
                         if (!result.canceled && result.assets) {
-                            const uri = result.assets[0].uri;
+                            const asset = result.assets[0];
+                            const base64 = await FileSystem.readAsStringAsync(asset.uri, { encoding: 'base64' });
+                            const uri = `data:image/jpeg;base64,${base64}`;
                             if (photos.length < 6) {
                                 setPhotos(prev => [...prev, uri]);
                             }
@@ -67,7 +76,6 @@ export default function ProductDetailsScreen() {
             { cancelable: true }
         );
     };
-
 
     const handleRemovePhoto = (index: number) => {
         setPhotos(prev => prev.filter((_, i) => i !== index));
@@ -84,60 +92,28 @@ export default function ProductDetailsScreen() {
         };
 
         try {
-
-            const existing = await AsyncStorage.getItem("products");
-            const parsed = existing ? JSON.parse(existing) : [];
-            const updated = [...parsed, newProduct];
-
-            await AsyncStorage.setItem("products", JSON.stringify(updated));
-
-            if (existing?.length) {
+            await addProduct(newProduct);
+            if (photos.length) {
                 router.push("/(tabs)/likes");
-                return;
+            } else {
+                router.push("/categories");
             }
-
-            router.push("/categories");
         } catch (err) {
             Alert.alert("Erro ao salvar", "Não foi possível salvar o produto.");
         }
     };
 
-
     return (
-        <KeyboardAvoidingView
-            style={{ flex: 1, backgroundColor: "#fff" }}
-            behavior={"position"}
-        >
+        <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "#fff" }} behavior="position">
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <ThemedView style={styles.container}>
                     <Text style={styles.title}>Criando o seu produto</Text>
-
                     <AddPhotoInput photos={photos} onPress={handleAddPhoto} onRemove={handleRemovePhoto} />
 
-                    <UiTextInput
-                        label="Título"
-                        placeholder="Digite o título do seu produto aqui"
-                        value={title}
-                        onChangeText={setTitle}
-                    />
-                    <UiTextInput
-                        label="Condição do produto"
-                        placeholder="Escreva a condição do seu produto aqui"
-                        value={condition}
-                        onChangeText={setCondition}
-                    />
-                    <UiTextInput
-                        label="Categoria"
-                        placeholder="Digite a categoria do seu produto aqui"
-                        value={category}
-                        onChangeText={setCategory}
-                    />
-                    <UiTextInput
-                        label="Adicione a descrição"
-                        placeholder="Escreva a descrição do seu produto aqui"
-                        value={description}
-                        onChangeText={setDescription}
-                    />
+                    <UiTextInput label="Título" placeholder="Digite o título do seu produto aqui" value={title} onChangeText={setTitle} />
+                    <UiTextInput label="Condição do produto" placeholder="Escreva a condição do seu produto aqui" value={condition} onChangeText={setCondition} />
+                    <UiTextInput label="Categoria" placeholder="Digite a categoria do seu produto aqui" value={category} onChangeText={setCategory} />
+                    <UiTextInput label="Adicione a descrição" placeholder="Escreva a descrição do seu produto aqui" value={description} onChangeText={setDescription} />
                     <Button type="primary" text="Continuar" onPress={handleSave} />
                 </ThemedView>
             </ScrollView>
@@ -151,49 +127,35 @@ type AddPhotoInputProps = {
     onRemove: (index: number) => void;
 };
 
-const AddPhotoInput = ({ onPress, photos, onRemove }: AddPhotoInputProps) => {
-    return (
-        <TouchableOpacity onPress={() => {
-            if (photos.length < 6) {
-                onPress();
-            }
-        }} activeOpacity={0.9}>
-            <View style={styles.photoInputDashedBox}>
-                <View style={styles.photoInputDottedBox}>
-                    {photos.length > 0 ? (
-                        <View style={{ gap: 8, alignItems: "center" }}>
-                            <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-                                {photos.map((uri, index) => (
-                                    <View key={index} style={styles.imageWrapper}>
-                                        <Image source={{ uri }} style={styles.thumbnail} />
-                                        <TouchableOpacity
-                                            style={styles.removeButton}
-                                            onPress={() => onRemove(index)}
-                                        >
-                                            <Image
-                                                source={require("@/assets/images/X.png")}
-                                                style={{ width: 8, height: 8 }}
-                                                resizeMode="contain"
-                                            />
-                                        </TouchableOpacity>
-                                    </View>
-                                ))}
-                            </View>
-                            <Text style={styles.photoCount}>{photos.length} de 6 fotos selecionadas</Text>
+const AddPhotoInput = ({ onPress, photos, onRemove }: AddPhotoInputProps) => (
+    <TouchableOpacity onPress={() => photos.length < 6 && onPress()} activeOpacity={0.9}>
+        <View style={styles.photoInputDashedBox}>
+            <View style={styles.photoInputDottedBox}>
+                {photos.length > 0 ? (
+                    <View style={{ gap: 8, alignItems: "center" }}>
+                        <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                            {photos.map((uri, index) => (
+                                <View key={index} style={styles.imageWrapper}>
+                                    <Image source={{ uri }} style={styles.thumbnail} />
+                                    <TouchableOpacity style={styles.removeButton} onPress={() => onRemove(index)}>
+                                        <Image source={require("@/assets/images/X.png")} style={{ width: 8, height: 8 }} resizeMode="contain" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
                         </View>
-                    ) : (
-                        <>
-                            <Image source={require("@/assets/images/redpink-camera.png")} />
-                            <Text style={styles.addLabel}>Incluir Fotos</Text>
-                            <Text style={styles.photoCount}>{photos.length} de 6 fotos selecionadas</Text>
-                        </>
-                    )}
-                </View>
+                        <Text style={styles.photoCount}>{photos.length} de 6 fotos selecionadas</Text>
+                    </View>
+                ) : (
+                    <>
+                        <Image source={require("@/assets/images/redpink-camera.png")} />
+                        <Text style={styles.addLabel}>Incluir Fotos</Text>
+                        <Text style={styles.photoCount}>{photos.length} de 6 fotos selecionadas</Text>
+                    </>
+                )}
             </View>
-        </TouchableOpacity>
-    );
-};
-
+        </View>
+    </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
     container: {

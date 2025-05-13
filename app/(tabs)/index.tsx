@@ -1,16 +1,49 @@
-import { Animated, Dimensions, Image, PanResponder, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, Touchable, Pressable } from 'react-native';
-
+import React, { useRef, useState } from 'react';
+import {
+  Animated,
+  Dimensions,
+  Image,
+  PanResponder,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Modal,
+  FlatList,
+  Pressable,
+} from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
-import { useRef, useState } from 'react';
 import { Header } from '@/components/ui/Header';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/Button';
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const items = [
-  { id: 1, color: '#FFC1C1', name: 'Cachorro', breed: 'SRD', distance: 'A 5km de você!' },
-  { id: 2, color: '#C1E1FF', name: 'Gato', breed: 'Persa', distance: 'A 3km de você!' },
-  { id: 3, color: '#D1FFC1', name: 'Coelho', breed: 'Mini Lop', distance: 'A 8km de você!' },
+  {
+    id: 1,
+    color: '#FFC1C1',
+    name: 'Aspirador',
+    marca: 'Philco',
+    distance: 'A 5km de você!',
+    image: 'https://images.colombo.com.br/produtos/4419724/4419724_Aspirador_de_Po_Philco_Smart_Turbo_1800W_12248997_z.jpg',
+  },
+  {
+    id: 2,
+    color: '#C1E1FF',
+    name: 'Microfone',
+    marca: 'Shure',
+    distance: 'A 3km de você!',
+    image: 'https://mlb-s2-p.mlstatic.com/microfone-profissional-shure-beta58a-sm58-original-5265-MLB4949332291_092013-F.jpg',
+  },
+  {
+    id: 3,
+    color: '#D1FFC1',
+    name: 'Headphone',
+    marca: 'Sennheiser',
+    distance: 'A 8km de você!',
+    image: 'https://www.bhphotovideo.com/images/images2500x2500/sennheiser_504583_universal_head_band_headset_with_980447.jpg',
+  },
 ];
 
 const mockProductImages = [
@@ -19,7 +52,6 @@ const mockProductImages = [
   require('@/assets/images/produtos/microfone.png'),
   require('@/assets/images/produtos/snorkel.png'),
 ];
-
 
 export default function HomeScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -31,8 +63,6 @@ export default function HomeScreen() {
     position.setValue({ x: 0, y: 0 });
   };
 
-  const SCREEN_WIDTH = Dimensions.get('window').width;
-
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
@@ -40,7 +70,6 @@ export default function HomeScreen() {
         position.setValue({ x: gesture.dx, y: gesture.dy });
       },
       onPanResponderRelease: (_, gesture) => {
-
         if (gesture.dx > 120) {
           Animated.timing(position, {
             toValue: { x: SCREEN_WIDTH + 100, y: gesture.dy },
@@ -56,7 +85,6 @@ export default function HomeScreen() {
             duration: 200,
             useNativeDriver: false,
           }).start(goToNext);
-
           return;
         }
 
@@ -66,11 +94,9 @@ export default function HomeScreen() {
             duration: 200,
             useNativeDriver: false,
           }).start(goToNext);
-
           setShowModal(true);
           return;
         }
-
 
         Animated.spring(position, {
           toValue: { x: 0, y: 0 },
@@ -80,21 +106,16 @@ export default function HomeScreen() {
     })
   ).current;
 
-  const pet = items[currentIndex];
-
-
-
+  const item = items[currentIndex];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <Header />
-      <ThemedView
-        style={styles.container}
-      >
+      <ThemedView style={styles.container}>
         <Animated.View
           style={[
             styles.card,
-            { backgroundColor: pet.color },
+            { backgroundColor: item.color },
             {
               transform: [
                 { translateX: position.x },
@@ -111,62 +132,94 @@ export default function HomeScreen() {
           ]}
           {...panResponder.panHandlers}
         >
+          <Image
+            source={{ uri: item.image }}
+            style={styles.productImage}
+            resizeMode="contain"
+          />
           <View style={styles.infoContainer}>
-            <Text style={styles.name}>{pet.name}</Text>
-            <Text style={styles.breed}>{pet.breed}</Text>
-            <Text style={styles.distance}>{pet.distance}</Text>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.marca}>{item.marca}</Text>
+            <Text style={styles.distance}>{item.distance}</Text>
           </View>
         </Animated.View>
 
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={[styles.button, { backgroundColor: '#FF5069' }]} onPress={goToNext}>
-            <Image style={styles.buttonImage} source={require('@/assets/images/X.png')} />
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: '#FF5069' }]}
+            onPress={goToNext}
+          >
+            <Image
+              style={styles.buttonImage}
+              source={require('@/assets/images/X.png')}
+            />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, { width: 75, height: 75, borderRadius: '50%', backgroundColor: '#426CD4' }]} onPress={() => setShowModal(true)}>
-            <Image style={[styles.buttonImage, { width: 24, height: 24 }]} source={require('@/assets/images/likes.png')} />
+          <TouchableOpacity
+            style={[
+              styles.button,
+              {
+                width: 75,
+                height: 75,
+                borderRadius: 37.5,
+                backgroundColor: '#426CD4',
+              },
+            ]}
+            onPress={() => setShowModal(true)}
+          >
+            <Image
+              style={[styles.buttonImage, { width: 24, height: 24 }]}
+              source={require('@/assets/images/likes.png')}
+            />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, { backgroundColor: '#00920A' }]} onPress={goToNext}>
-            <Image style={[styles.buttonImage]} source={require('@/assets/images/check-green.png')} />
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: '#00920A' }]}
+            onPress={goToNext}
+          >
+            <Image
+              style={[styles.buttonImage]}
+              source={require('@/assets/images/check-green.png')}
+            />
           </TouchableOpacity>
         </View>
 
         <Modal animationType="slide" visible={showModal} transparent={true}>
-          <Pressable style={styles.modalOverlay}
+          <Pressable
+            style={styles.modalOverlay}
             onPress={() => setShowModal(false)}
           >
             <Pressable style={styles.modalContainer} onPress={() => { }}>
-              <Text style={styles.modalTitle}>Qual produto você deseja propor para a troca?</Text>
+              <Text style={styles.modalTitle}>
+                Qual produto você deseja propor para a troca?
+              </Text>
               <FlatList
                 data={mockProductImages}
                 numColumns={2}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                   <TouchableOpacity style={styles.modalItem}>
-                    <Image source={item} style={styles.modalImage} />
+                    <Image
+                      source={{ uri: item }}
+                      style={styles.modalImage}
+                      resizeMode="cover"
+                    />
                   </TouchableOpacity>
                 )}
                 contentContainerStyle={styles.modalGrid}
               />
               <Button
-                text='Enviar proposta'
-                type='primary'
+                text="Enviar proposta"
+                type="primary"
                 onPress={() => setShowModal(false)}
               />
             </Pressable>
           </Pressable>
         </Modal>
-      </ThemedView >
+      </ThemedView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-
   container: {
     gap: 8,
     marginBottom: 8,
@@ -175,15 +228,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
-
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-
   card: {
     width: '100%',
     height: '65%',
@@ -191,17 +235,24 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     padding: 16,
     elevation: 5,
+    alignItems: 'center',
+  },
+  productImage: {
+    width: '80%',
+    height: '60%',
+    marginBottom: 16,
   },
   infoContainer: {
     backgroundColor: 'white',
     padding: 16,
     borderRadius: 12,
+    width: '100%',
   },
   name: {
     fontSize: 20,
     fontWeight: 'bold',
   },
-  breed: {
+  marca: {
     fontSize: 16,
     color: '#555',
   },
@@ -226,9 +277,8 @@ const styles = StyleSheet.create({
   buttonImage: {
     width: 16,
     height: 16,
-    objectFit: 'contain',
+    resizeMode: 'contain',
   },
-
   modalOverlay: {
     flex: 1,
     backgroundColor: '#00000099',
@@ -261,18 +311,5 @@ const styles = StyleSheet.create({
   modalImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
   },
-  sendButton: {
-    marginTop: 16,
-    backgroundColor: '#7400FF',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-  },
-  sendButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-
 });
